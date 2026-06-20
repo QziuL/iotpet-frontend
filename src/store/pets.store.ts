@@ -17,7 +17,14 @@ export const usePetsStore = create<PetsStore>((set, get) => ({
   pets: [],
   activePetId: null,
 
-  setPets: (pets) => set({ pets, activePetId: pets[0]?.id ?? null }),
+  setPets: (pets) =>
+    set(state => {
+      const activeExists = pets.some(p => p.id === state.activePetId);
+      return {
+        pets,
+        activePetId: activeExists ? state.activePetId : (pets[0]?.id ?? null),
+      };
+    }),
   addPet: (pet) => set(state => ({ pets: [...state.pets, pet] })),
   updatePet: (id, data) =>
     set(state => ({ pets: state.pets.map(p => (p.id === id ? { ...p, ...data } : p)) })),

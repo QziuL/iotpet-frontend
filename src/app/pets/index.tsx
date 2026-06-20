@@ -131,6 +131,7 @@ export default function PetsListScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <AppHeader
         title="Meus Pets"
+        showBack
         subtitle={
           pets?.length
             ? `${pets.length} pet${pets.length > 1 ? 's' : ''} cadastrado${pets.length > 1 ? 's' : ''}`

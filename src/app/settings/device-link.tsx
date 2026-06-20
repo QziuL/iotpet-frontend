@@ -26,8 +26,9 @@ async function mockLinkDevice(deviceCode: string, linkKey: string, petId: string
 export default function DeviceLinkScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { pets, getActivePet } = usePetsStore();
-  const activePet = getActivePet();
+  const pets = usePetsStore(s => s.pets);
+  const activePetId = usePetsStore(s => s.activePetId);
+  const activePet = pets.find(p => p.id === activePetId) ?? null;
 
   const [deviceCode, setDeviceCode] = useState('');
   const [linkKey, setLinkKey] = useState('');

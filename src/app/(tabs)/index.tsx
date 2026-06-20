@@ -31,7 +31,11 @@ export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const user = useAuthStore(s => s.user);
-  const { pets, setPets, getActivePet } = usePetsStore();
+  
+  const pets = usePetsStore(s => s.pets);
+  const activePetId = usePetsStore(s => s.activePetId);
+  const setPets = usePetsStore(s => s.setPets);
+  const setActivePet = usePetsStore(s => s.setActivePet);
 
   // Fetch pets
   const { data: petsData, isLoading: loadingPets } = useQuery({
@@ -41,9 +45,9 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (petsData) setPets(petsData);
-  }, [petsData]);
+  }, [petsData, setPets]);
 
-  const activePet = getActivePet();
+  const activePet = pets.find(p => p.id === activePetId) ?? null;
 
   // Fetch tracking for active pet
   const { data: tracking } = useQuery({
@@ -92,7 +96,7 @@ export default function HomeScreen() {
           {pets.map(p => (
             <TouchableOpacity
               key={p.id}
-              onPress={() => usePetsStore.getState().setActivePet(p.id)}
+              onPress={() => setActivePet(p.id)}
               style={[
                 styles.petChip,
                 activePet?.id === p.id && styles.petChipActive,
