@@ -16,6 +16,7 @@ interface PasswordFieldProps {
   onChangeText: (text: string) => void;
   error?: string;
   containerStyle?: ViewStyle;
+  leftIcon?: React.ReactNode;
 }
 
 export function PasswordField({
@@ -25,6 +26,7 @@ export function PasswordField({
   onChangeText,
   error,
   containerStyle,
+  leftIcon,
 }: PasswordFieldProps) {
   const [visible, setVisible] = useState(false);
 
@@ -37,6 +39,7 @@ export function PasswordField({
       secureTextEntry={!visible}
       error={error}
       containerStyle={containerStyle}
+      leftIcon={leftIcon}
       rightIcon={
         <TouchableOpacity
           onPress={() => setVisible(v => !v)}
@@ -54,3 +57,4 @@ export function PasswordField({
 }
 
 const styles = StyleSheet.create({});
+

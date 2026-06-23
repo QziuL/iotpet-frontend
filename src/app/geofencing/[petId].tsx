@@ -279,32 +279,49 @@ export default function GeofencingEditorScreen() {
   }, [onWebViewMessage]);
 
   function handleClear() {
-    Alert.alert('Limpar pontos', 'Deseja remover todos os pontos da cerca?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Limpar',
-        style: 'destructive',
-        onPress: () => {
-          if (Platform.OS === 'web') {
-            const iframe = document.getElementById('geofence-iframe') as HTMLIFrameElement;
-            iframe?.contentWindow?.postMessage(JSON.stringify({ type: 'clear' }), '*');
-          } else {
-            webViewRef.current?.injectJavaScript(
-              `document.dispatchEvent(new MessageEvent('message', { data: JSON.stringify({ type: 'clear' }) })); true;`,
-            );
-          }
+    const doClear = () => {
+      if (Platform.OS === 'web') {
+        const iframe = document.getElementById('geofence-iframe') as HTMLIFrameElement;
+        iframe?.contentWindow?.postMessage(JSON.stringify({ type: 'clear' }), '*');
+      } else {
+        webViewRef.current?.injectJavaScript(
+          `document.dispatchEvent(new MessageEvent('message', { data: JSON.stringify({ type: 'clear' }) })); true;`,
+        );
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmClear = window.confirm('Limpar pontos\n\nDeseja remover todos os pontos da cerca?');
+      if (confirmClear) {
+        doClear();
+      }
+    } else {
+      Alert.alert('Limpar pontos', 'Deseja remover todos os pontos da cerca?', [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Limpar',
+          style: 'destructive',
+          onPress: doClear,
         },
-      },
-    ]);
+      ]);
+    }
   }
 
   async function handleSave() {
     if (points.length < 3) {
-      Alert.alert('Atenção', 'Adicione ao menos 3 pontos para criar uma cerca válida.');
+      if (Platform.OS === 'web') {
+        window.alert('Atenção: Adicione ao menos 3 pontos para criar uma cerca válida.');
+      } else {
+        Alert.alert('Atenção', 'Adicione ao menos 3 pontos para criar uma cerca válida.');
+      }
       return;
     }
     if (!name.trim()) {
-      Alert.alert('Atenção', 'Dê um nome para a cerca.');
+      if (Platform.OS === 'web') {
+        window.alert('Atenção: Dê um nome para a cerca.');
+      } else {
+        Alert.alert('Atenção', 'Dê um nome para a cerca.');
+      }
       return;
     }
 
@@ -316,13 +333,23 @@ export default function GeofencingEditorScreen() {
         active,
         area: Math.round(area),
       });
-      Alert.alert('Salvo!', 'Cerca virtual salva com sucesso.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      if (Platform.OS === 'web') {
+        window.alert('Cerca virtual salva com sucesso.');
+        router.back();
+      } else {
+        Alert.alert('Salvo!', 'Cerca virtual salva com sucesso.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar a cerca.');
+      if (Platform.OS === 'web') {
+        window.alert('Erro: Não foi possível salvar a cerca.');
+      } else {
+        Alert.alert('Erro', 'Não foi possível salvar a cerca.');
+      }
     }
   }
+
 
   const center = existingFence
     ? {
@@ -331,10 +358,11 @@ export default function GeofencingEditorScreen() {
       }
     : DEFAULT_CENTER;
 
-  const initialPoints = (existingFence?.points ?? DEFAULT_POINTS).map(p => ({
+  const initialPoints = (existingFence?.points ?? DEFAULT_POINTS).map((p: GeoPoint) => ({
     lat: p.latitude,
     lng: p.longitude,
   }));
+
 
   const html = buildGeofenceEditorHTML(center, initialPoints);
 

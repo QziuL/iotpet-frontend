@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, FontFamily, FontSize, Spacing, BorderRadius } from '@/theme';
 import { InputField, PasswordField, PrimaryButton, SecondaryButton } from '@/components';
 import { useAuthStore } from '@/store/auth.store';
@@ -25,6 +27,25 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  // Entrance animations
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(25)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 700,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   function validate() {
     const e: typeof errors = {};
@@ -58,68 +79,95 @@ export default function LoginScreen() {
       <ScrollView
         contentContainerStyle={[
           styles.container,
-          { paddingTop: insets.top + Spacing[8], paddingBottom: insets.bottom + Spacing[8] },
+          { paddingTop: insets.top + Spacing[4], paddingBottom: insets.bottom + Spacing[8] },
         ]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.appName}>
-            Io<Text style={styles.accent}>Pet</Text>
-          </Text>
-          <Text style={styles.title}>Bem-vindo de volta! 👋</Text>
-          <Text style={styles.subtitle}>Entre para continuar</Text>
-        </View>
-
-        {/* Form */}
-        <View style={styles.form}>
-          <InputField
-            label="E-mail"
-            placeholder="seuemail@exemplo.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoComplete="email"
-            error={errors.email}
-          />
-
-          <PasswordField
-            label="Senha"
-            value={password}
-            onChangeText={setPassword}
-            error={errors.password}
-          />
-
-          <TouchableOpacity style={styles.forgotBtn} activeOpacity={0.7}>
-            <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
-          </TouchableOpacity>
-
-          <PrimaryButton
-            label="Entrar"
-            onPress={handleLogin}
-            loading={loading}
-          />
-
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={styles.orText}>ou</Text>
-            <View style={styles.line} />
+        <Animated.View
+          style={[
+            styles.animatedContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          {/* Header with glowing Paw Logo */}
+          <View style={styles.header}>
+            <View style={styles.logoWrapper}>
+              <Text style={styles.pawEmoji}>🐾</Text>
+            </View>
+            <Text style={styles.appName}>
+              Io<Text style={styles.accent}>Pet</Text>
+            </Text>
+            <Text style={styles.title}>Bem-vindo de volta! 👋</Text>
+            <Text style={styles.subtitle}>Entre para continuar</Text>
           </View>
 
-          <SecondaryButton
-            label="Cadastrar nova conta"
-            onPress={() => router.push('/(auth)/register' as any)}
-          />
-        </View>
+          {/* Form */}
+          <View style={styles.form}>
+            <InputField
+              label="E-mail"
+              placeholder="seuemail@exemplo.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoComplete="email"
+              error={errors.email}
+              leftIcon={
+                <Ionicons
+                  name="mail-outline"
+                  size={20}
+                  color={Colors.text.secondary}
+                />
+              }
+            />
 
-        {/* Footer */}
-        <Text style={styles.terms}>
-          Ao continuar, você concorda com os{' '}
-          <Text style={styles.link}>Termos de Uso</Text>
-          {' '}e{' '}
-          <Text style={styles.link}>Política de Privacidade</Text>
-        </Text>
+            <PasswordField
+              label="Senha"
+              value={password}
+              onChangeText={setPassword}
+              error={errors.password}
+              leftIcon={
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color={Colors.text.secondary}
+                />
+              }
+            />
+
+            <TouchableOpacity style={styles.forgotBtn} activeOpacity={0.7}>
+              <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
+            </TouchableOpacity>
+
+            <PrimaryButton
+              label="Entrar"
+              onPress={handleLogin}
+              loading={loading}
+            />
+
+            <View style={styles.divider}>
+              <View style={styles.line} />
+              <Text style={styles.orText}>ou</Text>
+              <View style={styles.line} />
+            </View>
+
+            <SecondaryButton
+              label="Cadastrar nova conta"
+              onPress={() => router.push('/(auth)/register' as any)}
+            />
+          </View>
+
+          {/* Footer */}
+          <Text style={styles.terms}>
+            Ao continuar, você concorda com os{' '}
+            <Text style={styles.link}>Termos de Uso</Text>
+            {' '}e{' '}
+            <Text style={styles.link}>Política de Privacidade</Text>
+          </Text>
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -130,18 +178,41 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: Spacing[6],
-    gap: Spacing[8],
+    justifyContent: 'center',
+  },
+  animatedContainer: {
+    gap: Spacing[6],
+    paddingVertical: Spacing[4],
   },
   header: {
     alignItems: 'center',
     gap: Spacing[2],
+  },
+  logoWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.primary.subtle,
+    borderWidth: 1.5,
+    borderColor: Colors.border.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primary.default,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 16,
+    elevation: 8,
+    marginBottom: Spacing[2],
+  },
+  pawEmoji: {
+    fontSize: 34,
   },
   appName: {
     fontFamily: FontFamily.extraBold,
     fontSize: FontSize['2xl'],
     color: Colors.text.primary,
     letterSpacing: -0.5,
-    marginBottom: Spacing[4],
+    marginBottom: Spacing[2],
   },
   accent: { color: Colors.primary.default },
   title: {
@@ -178,6 +249,8 @@ const styles = StyleSheet.create({
     color: Colors.text.tertiary,
     textAlign: 'center',
     lineHeight: FontSize.xs * 1.6,
+    marginTop: Spacing[4],
   },
   link: { color: Colors.primary.light },
 });
+

@@ -68,7 +68,8 @@ export default function PetProfileScreen() {
     queryFn: mockGetDevices,
   });
 
-  const device = devices?.find(d => d.petId === id);
+  const device = devices?.find((d: any) => d.petId === id);
+
 
   if (isLoading) return <LoadingState />;
   if (!pet) return (

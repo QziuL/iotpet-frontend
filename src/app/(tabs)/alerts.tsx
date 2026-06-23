@@ -83,11 +83,12 @@ export default function AlertsScreen() {
 
   const { data: alerts, isLoading } = useAlerts();
 
-  const filtered = alerts?.filter(a => {
+  const filtered = alerts?.filter((a: Alert) => {
     if (filter === 'all') return true;
     if (filter === 'system') return a.type === 'device_reconnected' || a.type === 'device_disconnected';
     return a.type === filter;
   }) ?? [];
+
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>

@@ -96,12 +96,22 @@ export default function NewPetScreen() {
         avatarUrl: avatarUri,
       });
       addPet(pet);
-      Alert.alert('Pet cadastrado!', `${pet.name} foi adicionado com sucesso.`, [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      if (Platform.OS === 'web') {
+        window.alert(`Pet cadastrado!\n\n${pet.name} foi adicionado com sucesso.`);
+        router.back();
+      } else {
+        Alert.alert('Pet cadastrado!', `${pet.name} foi adicionado com sucesso.`, [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
     } catch {
-      Alert.alert('Erro', 'Não foi possível cadastrar o pet.');
+      if (Platform.OS === 'web') {
+        window.alert('Erro: Não foi possível cadastrar o pet.');
+      } else {
+        Alert.alert('Erro', 'Não foi possível cadastrar o pet.');
+      }
     }
+
   }
 
   return (

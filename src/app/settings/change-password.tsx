@@ -36,9 +36,15 @@ export default function ChangePasswordScreen() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      Alert.alert('Sucesso', 'Senha alterada com sucesso.', [{ text: 'OK', onPress: () => router.back() }]);
+      if (Platform.OS === 'web') {
+        window.alert('Senha alterada com sucesso.');
+        router.back();
+      } else {
+        Alert.alert('Sucesso', 'Senha alterada com sucesso.', [{ text: 'OK', onPress: () => router.back() }]);
+      }
     }, 1000);
   }
+
 
   return (
     <KeyboardAvoidingView

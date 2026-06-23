@@ -17,6 +17,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { usePetsStore } from '@/store/pets.store';
 import { mockGetPets, mockGetTracking } from '@/mocks/pets.mock';
 import { useAlerts } from '@/hooks/useAlerts';
+import type { Alert } from '@/types/alert.types';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +59,8 @@ export default function HomeScreen() {
   });
 
   const { data: alerts } = useAlerts();
-  const unreadCount = alerts?.filter(a => !a.read).length ?? 0;
+  const unreadCount = alerts?.filter((a: Alert) => !a.read).length ?? 0;
+
 
   if (loadingPets) return <LoadingState />;
 

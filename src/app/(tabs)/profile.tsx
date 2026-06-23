@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,22 +51,32 @@ export default function ProfileScreen() {
   const [metricSystem, setMetricSystem] = React.useState(true);
 
   function handleLogout() {
-    Alert.alert(
-      'Sair da conta',
-      'Tem certeza que deseja sair?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Sair',
-          style: 'destructive',
-          onPress: () => {
-            clearAuth();
-            router.replace('/(auth)/login' as any);
+    const doLogout = () => {
+      clearAuth();
+      router.replace('/(auth)/login' as any);
+    };
+
+    if (Platform.OS === 'web') {
+      const confirmLogout = window.confirm('Sair da conta\n\nTem certeza que deseja sair?');
+      if (confirmLogout) {
+        doLogout();
+      }
+    } else {
+      Alert.alert(
+        'Sair da conta',
+        'Tem certeza que deseja sair?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Sair',
+            style: 'destructive',
+            onPress: doLogout,
           },
-        },
-      ],
-    );
+        ],
+      );
+    }
   }
+
 
   return (
     <ScrollView

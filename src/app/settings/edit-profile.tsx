@@ -46,7 +46,11 @@ export default function EditProfileScreen() {
 
   async function handleSave() {
     if (!name.trim() || !email.trim()) {
-      Alert.alert('Erro', 'Nome e e-mail são obrigatórios.');
+      if (Platform.OS === 'web') {
+        window.alert('Erro: Nome e e-mail são obrigatórios.');
+      } else {
+        Alert.alert('Erro', 'Nome e e-mail são obrigatórios.');
+      }
       return;
     }
     setLoading(true);
@@ -55,7 +59,12 @@ export default function EditProfileScreen() {
       const updatedUser = { ...user!, name, email, avatarUrl: avatarUri };
       setAuth(updatedUser, 'mock_token');
       setLoading(false);
-      Alert.alert('Sucesso', 'Perfil atualizado.', [{ text: 'OK', onPress: () => router.back() }]);
+      if (Platform.OS === 'web') {
+        window.alert('Perfil atualizado.');
+        router.back();
+      } else {
+        Alert.alert('Sucesso', 'Perfil atualizado.', [{ text: 'OK', onPress: () => router.back() }]);
+      }
     }, 800);
   }
 
